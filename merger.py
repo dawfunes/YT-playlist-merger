@@ -11,7 +11,7 @@ scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 def main():
     # Disable OAuthlib's HTTPS verification when running locally.
     # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "0"
 
     api_service_name = "youtube"
     api_version = "v3"
@@ -24,9 +24,10 @@ def main():
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, credentials=credentials)
     
-    # Inputs for the IDs
+    # Inputs for the playlist ID
     my_playlist=input("Insert your playlist ID:\n")
 
+    # Get your playlist items
     request = youtube.playlistItems().list(
         part="snippet",
         playlistId=my_playlist,
@@ -34,10 +35,12 @@ def main():
     )
     response = request.execute()
     
+    # Creates auxiliar lists to store the IDs and items
     myplaylist_items = []
     myplaylist_ids_char = []
     myplaylist_ids = []
     current_id=""
+    # Adds every item id in the playlist to the list
     while request is not None:
         response = request.execute()
         myplaylist_items += response["items"]
@@ -52,9 +55,10 @@ def main():
         myplaylist_ids_char=[]
         request = youtube.playlistItems().list_next(request,response)
 
-
+    # Inputs for the other playlist ID
     playlist=input("Insert the playlist ID that you want to add:\n")
 
+    # Get the playlist that you want to add, this one can be yours or someone else's
     request2 = youtube.playlistItems().list(
         part="snippet",
         playlistId=playlist,
@@ -62,10 +66,12 @@ def main():
     )
     response2 = request2.execute()
 
+    # Creates auxiliar lists to store the IDs and items
     playlist_items = []
     playlist_ids_char = []
     playlist_ids = []
     current_id=""
+    # Adds every item id in the playlist to the list
     while request2 is not None:
         response2 = request2.execute()
         playlist_items += response2["items"]
@@ -85,6 +91,7 @@ def main():
     total=0
     aux=0
 
+    # For every single item in the playlist you want to add, it checks if it is already in your playlist, if it isnt, it adds it
     for videoId in playlist_ids:
         total+=1
         if myplaylist_ids.count(videoId) == 0:
